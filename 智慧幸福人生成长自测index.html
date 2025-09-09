@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>智慧幸福人生成长系统</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root{
+      --gold:#bfa46f; /* 淡金色 */
+      --gold-2:#d6c190;
+    }
+    html,body{height:100%;margin:0;}
+    body{
+      font-family: "Georgia","PingFang SC","Microsoft YaHei",serif;
+      background:url("/Users/juandiliang/Desktop/智慧幸福人生成长系统/首页背景图.jpg") center/cover no-repeat fixed;
+      color:#3b3b3b;
+    }
+    .veil{
+      min-height:100%;
+      display:flex; justify-content:center; align-items:center;
+      padding:40px 12px;
+    }
+    .card{
+      width:min(720px,100%);
+      background:rgba(255,248,236,0.9); /* 米色半透明 */
+      border-radius:18px;
+      padding:40px 20px;
+      text-align:center;
+      opacity:0; animation:fadeIn 1.2s ease forwards;
+    }
+    h1{
+      margin:8px 0 20px;
+      font-size:34px;
+      font-weight:800;
+      color:var(--gold);
+      text-align:center;
+      letter-spacing:1px;
+    }
+    p.lead{
+      margin-bottom:20px;
+      font-size:18px;
+      font-weight:500;
+      color:#3b3b3b;
+    }
+    .field{
+      margin:15px auto; width:80%;
+      display:flex; align-items:center;
+      background:#fff;
+      border:1px solid #e7d8c0;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .field input{flex:1;border:none;outline:none;font-size:16px;}
+    .btn{
+      display:inline-block; border:none; cursor:pointer; color:#fff;
+      background:linear-gradient(135deg,var(--gold),var(--gold-2));
+      padding:14px 26px; border-radius:12px; font-size:18px;
+      font-weight:700;
+      box-shadow:0 6px 16px rgba(155,126,76,.25); transition:.25s;
+      margin-top:24px;
+    }
+    .btn:hover{filter:brightness(1.05);}
+    .stack{display:flex;flex-direction:column;align-items:center;gap:10px;}
+    .hint{font-size:13px;color:#7a6a57;}
+    .progress{text-align:center;font-size:16px;font-weight:600;color:#000;margin-bottom:10px;}
+    .question{font-size:19px;line-height:1.6;margin:12px auto;text-align:justify;opacity:0;animation:fadeIn .8s ease forwards;}
+    .options{display:flex;flex-direction:column;gap:10px;opacity:0;animation:fadeIn .8s ease forwards;}
+    .opt{
+      background:#fff; border:1px solid #e7d8c0; border-radius:12px; padding:12px;
+      text-align:left; cursor:pointer; transition:.2s;
+    }
+    .opt:hover{background:#f7ebd6;}
+    .opt.active{border-color:var(--gold);background:#fff5e1;}
+    .qr{text-align:center;margin-top:20px;opacity:0;animation:fadeIn 1.2s ease forwards;}
+    .qr img{width:200px;border:6px solid #fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.12);}
+    #page-done h1{
+      color:var(--gold);
+      font-size:34px;
+      font-weight:800;
+    }
+    #resultText{
+      font-size:20px;
+      font-weight:600;
+      color:#000;
+      margin:20px 0;
+    }
+    @keyframes fadeIn {
+      from{opacity:0; transform:translateY(20px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+  </style>
+</head>
+<body>
+<div class="veil">
+  <main class="card">
+
+    <!-- 首页 -->
+    <section id="page-intro">
+      <h1>智慧幸福人生成长系统</h1>
+      <p class="lead">请先填写信息，再开始 20 题心性测评（约 3–5 分钟）</p>
+
+      <div class="field"><span>姓名</span><input id="name" placeholder="请输入您的姓名"></div>
+      <div class="field"><span>微信</span><input id="wechat" placeholder="请输入您的微信号"></div>
+
+      <div class="stack">
+        <button class="btn" onclick="startQuiz()">开始自测</button>
+        <div class="hint">信息仅用于联系与回访，不会对外公开</div>
+      </div>
+    </section>
+
+    <!-- 题目页 -->
+    <section id="page-quiz" style="display:none">
+      <h1 style="color:#000;font-size:26px;font-weight:700;">心性测评</h1>
+      <div id="progress" class="progress"></div>
+      <div id="question" class="question"></div>
+      <div id="options" class="options"></div>
+      <div class="stack"><button id="nextBtn" class="btn" onclick="nextQuestion()" disabled>下一题</button></div>
+    </section>
+
+    <!-- 结束页 -->
+    <section id="page-done" style="display:none">
+      <h1>提交成功</h1>
+      <div id="resultText"></div>
+      <p class="lead">感谢参与测评。请扫码添加老师，预约 <b>1 小时一对一深度分析</b>。</p>
+      <div class="qr">
+        <img src="/Users/juandiliang/Desktop/智慧幸福人生成长系统/Juandy.png" alt="老师微信二维码">
+        <p class="lead">长按保存二维码 / 识别二维码添加</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const questions=[
+  {t:"情绪出现时，我能分辨是愤怒、委屈还是焦虑，并说出触发点。"},
+  {t:"我能注意到当下的身体细节（呼吸、肩颈紧绷、心跳等），并以此调整状态。"},
+  {t:"面对冲突，我能看到自己在其中的角色与可承担的部分。"},
+  {t:"做决定前，我会区分事实、想法与感受，并据此行动。"},
+  {t:"心情受影响时，我有一套对我有效的调节流程（呼吸/步行/书写等）。"},
+  {t:"被否定时，我可以先稳住情绪，再选择合适的回应方式。"},
+  {t:"感到疲惫或倦怠时，我会安排休息与自我照顾，而不是硬扛。"},
+  {t:"面对不确定与风险，我能容纳一定的焦虑并继续推进目标。"},
+  {t:"与人交流时，我能真诚表达需求，同时尊重彼此边界。"},
+  {t:"发生分歧时，我会先尝试理解对方的观点，再表达自己。"},
+  {t:"我会主动维护重要关系（定期联络、表达感谢/支持）。"},
+  {t:"在亲密/亲子/职场关系中，我更常使用“我信息”而非指责。"},
+  {t:"我对当前阶段的方向或愿景是清晰的，并能说出其意义。"},
+  {t:"我会把长期目标拆解为可执行步骤并追踪进度。"},
+  {t:"我的主要投入与我的价值观基本一致。"},
+  {t:"在舒适与成长之间，我愿意做出取舍并尝试新挑战。"},
+  {t:"遭遇失败时，我能从经验中学习并较快恢复到稳态。"},
+  {t:"面对长期困难，我会主动寻求资源与支持。"},
+  {t:"我能接纳不完美的自己，同时继续承担责任。"},
+  {t:"生活突然变化时，我能灵活调整计划，而不过度自责。"}
+];
+const scale=["非常不同意","不同意","中立","同意","非常同意"];
+let idx=0,picked=null;
+let scores=[];
+
+function startQuiz(){
+  if(!document.getElementById('name').value||!document.getElementById('wechat').value){
+    alert('请填写姓名和微信号');return;
+  }
+  document.getElementById('page-intro').style.display='none';
+  document.getElementById('page-quiz').style.display='block';
+  render();
+}
+function render(){
+  const q=questions[idx];
+  picked=null;
+  const qDiv=document.getElementById('question');
+  const opts=document.getElementById('options');
+  const progress=document.getElementById('progress');
+
+  progress.innerText=`第 ${idx+1} / ${questions.length} 题`;
+
+  qDiv.style.opacity=0; opts.style.opacity=0;
+  qDiv.innerText=q.t;
+  opts.innerHTML='';
+  scale.forEach((label,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';btn.innerText=label;
+    btn.onclick=()=>{
+      [...document.querySelectorAll('.opt')].forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');picked=i+1;
+      document.getElementById('nextBtn').disabled=false;
+    };
+    opts.appendChild(btn);
+  });
+
+  setTimeout(()=>{qDiv.style.opacity=1; opts.style.opacity=1;},50);
+  document.getElementById('nextBtn').disabled=true;
+  document.getElementById('nextBtn').innerText=idx===questions.length-1?'提交':'下一题';
+}
+function nextQuestion(){
+  if(picked==null){alert('请选择一个选项');return;}
+  scores.push(picked);
+  idx++;
+  if(idx<questions.length){render();}
+  else{
+    document.getElementById('page-quiz').style.display='none';
+    document.getElementById('page-done').style.display='block';
+
+    // 计算平均分
+    const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+    let text="";
+    if(avg<=2.5) text="整体偏弱，需要更多练习与支持。";
+    else if(avg<=3.5) text="心理状态中等，存在一定提升空间。";
+    else text="情绪管理较强，自我实现动力良好。";
+
+    document.getElementById('resultText').innerText=text;
+  }
+}
+</script>
+</body>
+</html>
